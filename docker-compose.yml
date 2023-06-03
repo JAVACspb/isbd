@@ -1,0 +1,54 @@
+version: '3.7'
+services:
+  nginx_server:
+    container_name: nginx
+    image: nginx
+    ports:
+      - '8085:8085'
+    networks:
+      - strattan-network
+    depends_on:
+      - strattan-oakmant-first
+      - strattan-oakmant-second
+    volumes:
+      - ./conf:/etc/nginx/nginx.conf
+
+  postgres:
+    container_name: postgres
+    image: postgres
+    environment:
+      POSTGRES_DB: "postgres"
+      POSTGRES_USER: "postgres"
+      PGDATA: "/var/lib/postgresql/data/pgdata"
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+    networks:
+      - strattan-network
+
+  strattan-oakmant-first:
+    container_name: strattan-oakmant-first
+    image: strattan-oakmant
+    depends_on:
+      - postgres
+    environment:
+      JVM_OPTS:
+        -Dspring.profiles.active=local
+        -Dspring.datasource.username=postgres
+    networks:
+      - strattan-network
+    command: first
+  strattan-oakmant-second:
+    container_name: strattan-oakmant-second
+    image: strattan-oakmant
+    depends_on:
+      - postgres
+    environment:
+      JVM_OPTS:
+        -Dspring.profiles.active=local
+        -Dspring.datasource.username=postgres
+    networks:
+      - strattan-network
+    command:
+      - second
+networks:
+  strattan-network:
