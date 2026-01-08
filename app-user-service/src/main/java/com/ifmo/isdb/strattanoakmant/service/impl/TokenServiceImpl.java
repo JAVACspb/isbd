@@ -135,12 +135,10 @@ public class TokenServiceImpl implements TokenService {
 
     @Scheduled(cron = "*/10 * * * * ?")
     public void refreshTokens() {
-        List<JwtToken> all = tokenRepository.findAll();
-        for (JwtToken token :
-                all) {
-            if (token.getLocalDateTime().plusHours(1).isBefore(LocalDateTime.now())) {
-                tokenRepository.delete(token);
-            }
+        LocalDateTime cutoff = LocalDateTime.now().minusHours(1);
+        int deleted = tokenRepository.deleteByLocalDateTimeBefore(cutoff);
+        if (deleted > 0) {
+            log.debug(String.format("Deleted %s expired tokens", deleted));
         }
     }
 }
