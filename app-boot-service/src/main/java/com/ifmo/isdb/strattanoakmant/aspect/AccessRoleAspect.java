@@ -25,32 +25,32 @@ public class AccessRoleAspect {
 
     @Around(value = "within(@org.springframework.web.bind.annotation.RestController *) && args(token, ..)" +
             "&& !within(*..TokenController) && !within(springfox..*)")
-    public Object roleAccess(ProceedingJoinPoint joinPoint, String token) {
-        try {
-            MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
-            Method method = methodSignature.getMethod();
-            String roleByToken = tokenService.getRoleByToken(token);
-            AccessRole methodAnnotation = method.getAnnotation(AccessRole.class);
-            AccessRole classAnnotation = method.getDeclaringClass().getAnnotation(AccessRole.class);
-            List<String> rolesOnClass = Objects.nonNull(classAnnotation) ? Arrays
-                    .stream(classAnnotation.value())
-                    .map(Role::getName)
-                    .collect(Collectors.toList()) : new ArrayList<>();
-            if (Objects.nonNull(methodAnnotation)) {
-                List<String> rolesOnMethod = Arrays
-                        .stream(methodAnnotation.value())
-                        .map(Role::getName)
-                        .collect(Collectors.toList());
-                rolesOnMethod.addAll(rolesOnClass);
-                return isRoleInList(joinPoint, roleByToken, rolesOnMethod);
-            } else if (!rolesOnClass.isEmpty()) {
-                return isRoleInList(joinPoint, roleByToken, rolesOnClass);
-            } else {
-                return joinPoint.proceed();
-            }
-        } catch (Throwable e) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Invalid token");
+    public Object roleAccess(ProceedingJoinPoint joinPoint, String token) throws Throwable {
+        MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
+        Method method = methodSignature.getMethod();
+
+        AccessRole methodAnnotation = method.getAnnotation(AccessRole.class);
+        AccessRole classAnnotation = method.getDeclaringClass().getAnnotation(AccessRole.class);
+
+        List<String> rolesOnClass = Objects.nonNull(classAnnotation)
+                ? Arrays.stream(classAnnotation.value()).map(Role::getName).collect(Collectors.toList())
+                : Collections.emptyList();
+
+        List<String> requiredRoles;
+        if (Objects.nonNull(methodAnnotation)) {
+            requiredRoles = new ArrayList<>(
+                    Arrays.stream(methodAnnotation.value()).map(Role::getName).collect(Collectors.toList())
+            );
+            requiredRoles.addAll(rolesOnClass);
+        } else if (!rolesOnClass.isEmpty()) {
+            requiredRoles = new ArrayList<>(rolesOnClass);
+        } else {
+            return joinPoint.proceed();
         }
+
+        // Token parsing/validation errors should be 401 and come from TokenService
+        String roleByToken = tokenService.getRoleByToken(token);
+        return isRoleInList(joinPoint, roleByToken, requiredRoles);
     }
 
     private Object isRoleInList(ProceedingJoinPoint joinPoint, String
@@ -59,7 +59,7 @@ public class AccessRoleAspect {
         if (collectOfAnnotationArgs.stream().anyMatch(s -> s.equalsIgnoreCase(mainRole))) {
             return joinPoint.proceed();
         } else {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not enough Rights");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not enough rights");
         }
     }
 }
