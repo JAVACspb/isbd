@@ -15,6 +15,10 @@ public class SecurityConfig {
             @Override
             public void addCorsMappings(@NonNull CorsRegistry registry) {
                 registry.addMapping("/api/**").allowedOrigins("*").allowedMethods("*");
+                // Разрешаем доступ к Swagger UI
+                registry.addMapping("/swagger-ui/**").allowedOrigins("*").allowedMethods("*");
+                registry.addMapping("/swagger-resources/**").allowedOrigins("*").allowedMethods("*");
+                registry.addMapping("/v2/api-docs").allowedOrigins("*").allowedMethods("*");
             }
         };
     }

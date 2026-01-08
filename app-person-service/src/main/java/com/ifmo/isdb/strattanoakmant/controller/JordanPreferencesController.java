@@ -10,6 +10,7 @@ import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 @CrossOrigin
 @RestController
@@ -25,7 +26,7 @@ public class JordanPreferencesController {
             @ApiResponse(code = 401, message = "You are not authorized to view the resource"),
             @ApiResponse(code = 403, message = "Accessing the resource you were trying to reach is forbidden")
     })
-    public ResponseEntity<String> getCocaine(@RequestHeader("Authorization") String token) {
+    public ResponseEntity<String> getCocaine(@ApiIgnore @RequestHeader("Authorization") String token) {
         return ResponseEntity.ok(JordanPreferences.COCAINE.getName());
     }
 
@@ -36,7 +37,7 @@ public class JordanPreferencesController {
             @ApiResponse(code = 401, message = "You are not authorized to view the resource"),
             @ApiResponse(code = 403, message = "Accessing the resource you were trying to reach is forbidden")
     })
-    public ResponseEntity<String> getWhiskey(@RequestHeader("Authorization") String token) {
+    public ResponseEntity<String> getWhiskey(@ApiIgnore @RequestHeader("Authorization") String token) {
         return ResponseEntity.ok(JordanPreferences.WHISKEY.getName());
     }
 
@@ -47,7 +48,7 @@ public class JordanPreferencesController {
             @ApiResponse(code = 401, message = "You are not authorized to view the resource"),
             @ApiResponse(code = 403, message = "Accessing the resource you were trying to reach is forbidden")
     })
-    public ResponseEntity<String> getGong(@RequestHeader("Authorization") String token) {
+    public ResponseEntity<String> getGong(@ApiIgnore @RequestHeader("Authorization") String token) {
         return ResponseEntity.ok(JordanPreferences.GONG.getName());
     }
 }

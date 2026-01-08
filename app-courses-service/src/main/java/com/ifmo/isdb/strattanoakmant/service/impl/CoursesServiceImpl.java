@@ -25,7 +25,10 @@ public class CoursesServiceImpl implements CoursesService {
     private List<Course> actual = new CopyOnWriteArrayList<>(defaults());
 
     private List<Course> defaults() {
-        return Arrays.asList(new Course("BMW", 12L), new Course("ANUS", 13L));
+        return Arrays.asList(
+                new Course("Sales Basics", 12L),
+                new Course("Negotiation Skills", 13L)
+        );
     }
 
     @Override

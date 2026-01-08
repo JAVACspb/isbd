@@ -13,3 +13,10 @@
 /app-user-service/build/
 /app-user-service/build/classes/java/main/
 /build/
+
+# IDE
+.idea/
+*.iml
+
+# Local postgres data (docker bind-mount)
+postgres-data/

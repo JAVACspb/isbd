@@ -1,7 +1,5 @@
 package com.ifmo.isdb.strattanoakmant.configuration;
 
-import com.ifmo.isdb.strattanoakmant.Application;
-import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
@@ -39,7 +37,22 @@ public class SwaggerConfig  {
                 .select()
                 .apis(RequestHandlerSelectors.withClassAnnotation(RestController.class))
                 .paths(any())
-                .build();
+                .build()
+                .apiInfo(apiInfo());
+    }
+
+    private springfox.documentation.service.ApiInfo apiInfo() {
+        return new springfox.documentation.service.ApiInfo(
+                "Stratton Oakmont API",
+                "API для системы управления компанией Stratton Oakmont. " +
+                "Документация всех доступных endpoints для работы с заявками, курсами, отчётами и аутентификацией.",
+                "1.0.0",
+                "",
+                new springfox.documentation.service.Contact("ISBD Team", "", ""),
+                "",
+                "",
+                Collections.emptyList()
+        );
     }
 
     private ApiKey apiKey() {

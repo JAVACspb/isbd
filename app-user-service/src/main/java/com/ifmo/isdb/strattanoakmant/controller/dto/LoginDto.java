@@ -18,12 +18,12 @@ import javax.validation.constraints.Size;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class LoginDto {
 
-    @ApiModelProperty(value = "login", example = "m.rybalchenko")
+    @ApiModelProperty(value = "login", example = "")
     @NotNull(message = "Login is mandatory.")
     @Size(min = 1, message = "Login must be from 1 to 255 characters")
     private String login;
 
-    @ApiModelProperty(value = "password", example = "12341dsadsa3")
+    @ApiModelProperty(value = "password", example = "")
     @NotNull(message = "Password is mandatory.")
     @Size(min = 1, message = "Password must be from 1 to 255 characters")
     private String password;

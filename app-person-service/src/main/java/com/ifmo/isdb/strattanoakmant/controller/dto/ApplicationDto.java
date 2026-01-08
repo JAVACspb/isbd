@@ -21,20 +21,20 @@ public class ApplicationDto {
     @ApiModelProperty(hidden = true)
     private Long id;
 
-    @ApiModelProperty(value = "name", example = "Maxim")
+    @ApiModelProperty(value = "name", example = "Test")
     @NotNull(message = "Name is mandatory")
     @Size(min = 1, message = "Password must be from 1 to 255 characters")
     private String name;
 
-    @ApiModelProperty(value = "surname", example = "Zalupenko")
+    @ApiModelProperty(value = "surname", example = "User")
     @NotNull(message = "Surname is mandatory")
     @Size(min = 1, message = "Surname must be from 1 to 255 characters")
     private String surname;
 
-    @ApiModelProperty(value = "education", example = "ITMO FITIP")
+    @ApiModelProperty(value = "education", example = "ITMO")
     private String education;
 
-    @ApiModelProperty(value = "about yourself", example = "Loser")
+    @ApiModelProperty(value = "about yourself", example = "baseline check")
     private String aboutYourself;
 
     @ApiModelProperty(value = "phone number", example = "8999999999")

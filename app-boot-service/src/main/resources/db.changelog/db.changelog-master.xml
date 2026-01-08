@@ -8,7 +8,7 @@
 
 
     <changeSet author="Ivan Lednev" id="1">
-        <sqlFile dbms="!h2, oracle, mysql, postgres"
+        <sqlFile dbms="postgresql"
                  path="db.changelog/changes/202201221437-creating-and-filling"
                  relativeToChangelogFile="false"
                  splitStatements="true"
@@ -16,16 +16,24 @@
     </changeSet>
 
     <changeSet author="Maxim Rybalchenko" id="2">
-        <sqlFile dbms="!h2, oracle, mysql, postgres"
+        <sqlFile dbms="postgresql"
                  path="db.changelog/changes/202201221439-create-triggers"
+                 relativeToChangelogFile="false"
+                 splitStatements="false"
+                 stripComments="true"/>
+    </changeSet>
+
+    <changeSet author="Ivan Lednev" id="3">
+        <sqlFile dbms="postgresql"
+                 path="db.changelog/changes/202201241636-add-new-types.sql"
                  relativeToChangelogFile="false"
                  splitStatements="true"
                  stripComments="true"/>
     </changeSet>
 
-    <changeSet author="Ivan Lednev" id="3">
-        <sqlFile dbms="!h2, oracle, mysql, postgres"
-                 path="db.changelog/changes/202201241636-add-new-types.sql"
+    <changeSet author="Alentyev Alexander" id="4">
+        <sqlFile dbms="postgresql"
+                 path="db.changelog/changes/202601081640-demo-fixes.sql"
                  relativeToChangelogFile="false"
                  splitStatements="true"
                  stripComments="true"/>

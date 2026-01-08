@@ -9,8 +9,8 @@ spring:
     show-sql: true
   datasource:
     jdbc-url: jdbc:postgresql://postgres:5432/postgres
-    username:
-    password:
+    username: postgres
+    password: postgres
   liquibase:
     change-log: db.changelog/db.changelog-master.xml
 server:

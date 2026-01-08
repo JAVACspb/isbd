@@ -147,7 +147,7 @@ CREATE TABLE IF NOT EXISTS daily_profit
 (
     id INT PRIMARY KEY check (id > 0),
     date DATE,
-    profit INT
+    profit BIGINT
 );
 
 INSERT INTO daily_profit VALUES (1, current_date, 102010210102);

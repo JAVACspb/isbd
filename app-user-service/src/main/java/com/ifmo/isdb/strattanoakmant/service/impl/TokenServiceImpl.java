@@ -7,8 +7,10 @@ import com.ifmo.isdb.strattanoakmant.repository.EmployeeRepository;
 import com.ifmo.isdb.strattanoakmant.repository.PositionRepository;
 import com.ifmo.isdb.strattanoakmant.repository.TokenRepository;
 import com.ifmo.isdb.strattanoakmant.service.ifc.TokenService;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.impl.DefaultClaims;
+import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,9 +19,12 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.transaction.Transactional;
+import java.nio.charset.StandardCharsets;
+import java.security.Key;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -37,6 +42,13 @@ public class TokenServiceImpl implements TokenService {
     private final PositionRepository positionRepository;
     private final TokenRepository tokenRepository;
     private final CacheManager cacheManager;
+
+    /**
+     * Secret for signing JWTs. Must be >= 32 bytes for HS256.
+     * Can be overridden via config (e.g. application-local.yaml) or env.
+     */
+    @Value("${jwt.secret:change-me-please-change-me-please-32bytes}")
+    private String jwtSecret;
 
 
     @Override
@@ -72,10 +84,13 @@ public class TokenServiceImpl implements TokenService {
     }
 
     private DefaultClaims getClaims(String token) {
-        return (DefaultClaims) Jwts.parserBuilder()
+        String normalized = normalizeToken(token);
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(getSigningKey())
                 .build()
-                .parse(token)
+                .parseClaimsJws(normalized)
                 .getBody();
+        return (DefaultClaims) claims;
     }
 
     private JwtToken createToken(Long userId, String role) {
@@ -97,9 +112,26 @@ public class TokenServiceImpl implements TokenService {
                 .setId(UUID.randomUUID().toString())
                 .setIssuedAt(Date.from(issuedDateInstant))
                 .setExpiration(Date.from(expirationDateInstant))
+                .signWith(getSigningKey())
                 .compact();
 
         return new JwtToken(compact, role, LocalDateTime.now());
+    }
+
+    private Key getSigningKey() {
+        return Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
+    }
+
+    /**
+     * Swagger users often paste either raw token or "Bearer <token>".
+     */
+    private String normalizeToken(String token) {
+        if (token == null) return null;
+        String trimmed = token.trim();
+        if (trimmed.regionMatches(true, 0, "Bearer ", 0, "Bearer ".length())) {
+            return trimmed.substring("Bearer ".length()).trim();
+        }
+        return trimmed;
     }
 
     @Scheduled(cron = "*/10 * * * * ?")

@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import ma.glasnost.orika.MapperFacade;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
 
@@ -43,7 +44,7 @@ public class TokenController {
             @ApiResponse(code = 401, message = "You are not authorized to view the resource"),
             @ApiResponse(code = 403, message = "Accessing the resource you were trying to reach is forbidden")
     })
-    public ResponseEntity<String> getToken(@RequestHeader("Authorization") String token) {
+    public ResponseEntity<String> getToken(@ApiIgnore @RequestHeader("Authorization") String token) {
         Employee creds = tokenService.getUserByToken(token);
         return ResponseEntity.ok(creds.getName() + " " + creds.getSurname());
     }

@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import java.util.List;
 
@@ -30,7 +31,7 @@ public class CoursesController {
             @ApiResponse(code = 401, message = "You are not authorized to view the resource"),
             @ApiResponse(code = 403, message = "Accessing the resource you were trying to reach is forbidden")
     })
-    public ResponseEntity<List<Course>> getActualCourses(@RequestHeader("Authorization") String token) {
+    public ResponseEntity<List<Course>> getActualCourses(@ApiIgnore @RequestHeader("Authorization") String token) {
         return ResponseEntity.ok(coursesService.getActualCourses());
     }
 
@@ -42,7 +43,7 @@ public class CoursesController {
             @ApiResponse(code = 401, message = "You are not authorized to view the resource"),
             @ApiResponse(code = 403, message = "Accessing the resource you were trying to reach is forbidden")
     })
-    public ResponseEntity<Void> publishActualCourses(@RequestHeader("Authorization") String token,
+    public ResponseEntity<Void> publishActualCourses(@ApiIgnore @RequestHeader("Authorization") String token,
                                                              @RequestBody List<Course> courses) {
         coursesService.publishActualCourses(courses);
         return new ResponseEntity<>(HttpStatus.OK);
