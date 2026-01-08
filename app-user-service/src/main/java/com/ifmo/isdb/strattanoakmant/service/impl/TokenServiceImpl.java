@@ -14,8 +14,6 @@ import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.cache.CacheManager;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -41,7 +39,6 @@ public class TokenServiceImpl implements TokenService {
     private final EmployeeRepository employeeRepository;
     private final PositionRepository positionRepository;
     private final TokenRepository tokenRepository;
-    private final CacheManager cacheManager;
 
     /**
      * Secret for signing JWTs. Must be >= 32 bytes for HS256.
@@ -52,13 +49,12 @@ public class TokenServiceImpl implements TokenService {
 
 
     @Override
-    @Cacheable(value = "token", key = "#login.login")
     public JwtToken createToken(Login login) {
         log.debug(String.format("Creating token for user = %s", login.getLogin()));
         Employee employee = Optional
                 .ofNullable(employeeRepository.findByLoginAndPassword(login.getLogin(), login.getPassword()))
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-                        String.format("Can't find employee by login = %s ", login.getLogin())));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED,
+                        "Invalid login or password"));
         String role = Optional.ofNullable(positionRepository.findRoleById(employee.getId()))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                         String.format("Can't find role by employee id= %s ", employee.getId())));
@@ -70,10 +66,10 @@ public class TokenServiceImpl implements TokenService {
     public Employee getUserByToken(String token) {
         log.debug(String.format("Finding user by token = %s", token));
         Map<String, Object> claims = getClaims(token);
-        Integer userId = (Integer) claims.get("uid");
+        Number userId = (Number) claims.get("uid");
         return employeeRepository
-                .findById(new Long(userId))
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                .findById(userId.longValue())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED,
                         String.format("Bad token, no employee for id = %s ", userId)));
     }
 
@@ -85,6 +81,9 @@ public class TokenServiceImpl implements TokenService {
 
     private DefaultClaims getClaims(String token) {
         String normalized = normalizeToken(token);
+        if (normalized == null || normalized.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Missing Authorization token");
+        }
         Claims claims = Jwts.parserBuilder()
                 .setSigningKey(getSigningKey())
                 .build()
@@ -143,10 +142,5 @@ public class TokenServiceImpl implements TokenService {
                 tokenRepository.delete(token);
             }
         }
-    }
-
-    @Scheduled(fixedRate = 10000)
-    public void evictTokenAtIntervals() {
-        Objects.requireNonNull(cacheManager.getCache("token")).clear();
     }
 }
