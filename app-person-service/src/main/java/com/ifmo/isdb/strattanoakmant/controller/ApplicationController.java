@@ -4,19 +4,18 @@ import com.ifmo.isdb.strattanoakmant.controller.dto.ApplicationDto;
 import com.ifmo.isdb.strattanoakmant.model.Application;
 import com.ifmo.isdb.strattanoakmant.model.Role;
 import com.ifmo.isdb.strattanoakmant.security.AccessRole;
+import com.ifmo.isdb.strattanoakmant.service.MappingService;
 import com.ifmo.isdb.strattanoakmant.service.ifc.ApplicationService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
-import ma.glasnost.orika.MapperFacade;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @CrossOrigin
 @RestController
@@ -25,7 +24,7 @@ import java.util.stream.Collectors;
 public class ApplicationController {
 
     private final ApplicationService applicationService;
-    private final MapperFacade mapperFacade;
+    private final MappingService mappingService;
 
     @GetMapping
     @AccessRole({Role.HR})
@@ -36,10 +35,7 @@ public class ApplicationController {
             @ApiResponse(code = 403, message = "Accessing the resource you were trying to reach is forbidden")
     })
     public ResponseEntity<List<ApplicationDto>> getApplications(@ApiIgnore @RequestHeader("Authorization") String token) {
-        return ResponseEntity.ok(applicationService.getApplications()
-                .stream()
-                .map(application ->  mapperFacade.map(application, ApplicationDto.class))
-                .collect(Collectors.toList()));
+        return ResponseEntity.ok(mappingService.mapList(applicationService.getApplications(), ApplicationDto.class));
     }
 
     @PostMapping
@@ -50,8 +46,8 @@ public class ApplicationController {
             @ApiResponse(code = 403, message = "Accessing the resource you were trying to reach is forbidden")
     })
     public ResponseEntity<ApplicationDto> saveApplication(@RequestBody @Valid ApplicationDto applicationDto) {
-        return ResponseEntity.ok(mapperFacade.map(applicationService
-                .saveApplication(mapperFacade.map(applicationDto, Application.class)), ApplicationDto.class));
+        Application saved = applicationService.saveApplication(mappingService.map(applicationDto, Application.class));
+        return ResponseEntity.ok(mappingService.map(saved, ApplicationDto.class));
     }
 
     @DeleteMapping("/{id}")
