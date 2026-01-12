@@ -13,6 +13,9 @@ spring:
     password: postgres
   liquibase:
     change-log: db.changelog/db.changelog-master.xml
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
 server:
   servlet:
     context-path: "/api"

@@ -5,7 +5,7 @@ buildscript {
 }
 
 plugins {
-    id 'org.springframework.boot' version '2.5.2' apply false
+    id 'org.springframework.boot' version '2.7.18' apply false
 }
 
 subprojects {
@@ -50,7 +50,7 @@ subprojects {
 
     dependencyManagement {
         imports {
-            mavenBom("org.springframework.boot:spring-boot-dependencies:2.1.7.RELEASE")
+            mavenBom("org.springframework.boot:spring-boot-dependencies:2.7.18")
         }
     }
 }
