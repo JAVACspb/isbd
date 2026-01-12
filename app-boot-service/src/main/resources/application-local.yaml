@@ -28,3 +28,8 @@ logging:
   level:
     com:
       ifmo: debug
+
+app:
+  cache:
+    coursesTtlSeconds: 60
+    tokenTtlSeconds: 3600

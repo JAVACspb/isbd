@@ -2,9 +2,9 @@ package com.ifmo.isdb.strattanoakmant.service.impl;
 
 import com.ifmo.isdb.strattanoakmant.model.Course;
 import com.ifmo.isdb.strattanoakmant.service.ifc.CoursesService;
-import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -32,7 +32,7 @@ public class CoursesServiceImpl implements CoursesService {
     }
 
     @Override
-    @Cacheable(value = "courses", key = "#courses")
+    @CacheEvict(cacheNames = "courses", allEntries = true)
     public void publishActualCourses(List<Course> courses) {
         log.debug("Publishing new actual courses");
         actual = new CopyOnWriteArrayList<>(courses);
@@ -40,6 +40,7 @@ public class CoursesServiceImpl implements CoursesService {
     }
 
     @Override
+    @Cacheable(cacheNames = "courses")
     public List<Course> getActualCourses() {
         return Optional
                 .ofNullable(actual)
