@@ -54,4 +54,12 @@
                  splitStatements="true"
                  stripComments="true"/>
     </changeSet>
+
+    <changeSet author="Alentyev Alexander" id="7">
+        <sqlFile dbms="postgresql"
+                 path="db.changelog/changes/202601121545-fix-add-new-person-trigger.sql"
+                 relativeToChangelogFile="false"
+                 splitStatements="false"
+                 stripComments="true"/>
+    </changeSet>
 </databaseChangeLog>
