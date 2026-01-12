@@ -21,15 +21,17 @@ import static org.mockito.Mockito.mock;
 class TokenServiceImplTest {
 
     private static TokenServiceImpl newServiceWithSecret(String secret) throws Exception {
+        JwtCodec codec = new JwtCodec();
+        Field secretField = JwtCodec.class.getDeclaredField("jwtSecret");
+        secretField.setAccessible(true);
+        secretField.set(codec, secret);
+
         TokenServiceImpl svc = new TokenServiceImpl(
                 mock(EmployeeRepository.class),
                 mock(PositionRepository.class),
-                mock(TokenRepository.class)
+                mock(TokenRepository.class),
+                codec
         );
-
-        Field f = TokenServiceImpl.class.getDeclaredField("jwtSecret");
-        f.setAccessible(true);
-        f.set(svc, secret);
         return svc;
     }
 
