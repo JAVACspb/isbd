@@ -135,10 +135,16 @@ public class TokenServiceImpl implements TokenService {
 
     @Scheduled(cron = "*/10 * * * * ?")
     public void refreshTokens() {
-        LocalDateTime cutoff = LocalDateTime.now().minusHours(1);
-        int deleted = tokenRepository.deleteByLocalDateTimeBefore(cutoff);
-        if (deleted > 0) {
-            log.debug(String.format("Deleted %s expired tokens", deleted));
+        try {
+            LocalDateTime cutoff = LocalDateTime.now().minusHours(1);
+            int deleted = tokenRepository.deleteByLocalDateTimeBefore(cutoff);
+            if (deleted > 0) {
+                log.debug(String.format("Deleted %s expired tokens", deleted));
+            }
+        } catch (Exception e) {
+            // On a fresh DB startup Liquibase may not have created tables yet.
+            // This job must never crash the service.
+            log.debug("Skipping token cleanup (DB not ready yet): " + e.getMessage());
         }
     }
 }
